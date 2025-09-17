@@ -1,5 +1,5 @@
 # Use a stable Python 3.10 slim image (good compatibility for swisseph)
-FROM python:3.13-slim
+FROM python:3.12-slim
 
 # Avoid prompts during apt installs
 ENV DEBIAN_FRONTEND=noninteractive
