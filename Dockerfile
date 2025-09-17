@@ -1,10 +1,10 @@
-# Use a stable Python 3.10 slim image (good compatibility for swisseph)
-FROM python:3.11-slim
+# Use the latest Python 3.13 slim image
+FROM python:3.13-slim
 
-# Avoid prompts during apt installs
-ENV DEBIAN_FRONTEND=noninteractive
+# Set working directory
+WORKDIR /app
 
-# Install system packages required to compile/link swisseph and common Python deps
+# Install system dependencies needed for Python packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
@@ -12,22 +12,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
-WORKDIR /app
-
-# Copy only requirements first (Docker cache optimization)
+# Copy requirements file
 COPY requirements.txt /app/requirements.txt
 
-# Upgrade pip and install Python deps
+# Upgrade pip and install Python dependencies
 RUN python -m pip install --upgrade pip setuptools wheel \
- && pip install --no-cache-dir -r /app/requirements.txt
+    && pip install --no-cache-dir -r /app/requirements.txt
 
-# Copy application code
+# Copy all app files
 COPY . /app
 
-# Expose port (conventional port)
+# Expose port for Flask
 EXPOSE 5000
 
-# Start command: bind to PORT env if provided, otherwise 5000.
-# Uses gunicorn to serve the Flask app (app.py must define app = Flask(__name__))
-CMD ["sh", "-c", "gunicorn app:app -b 0.0.0.0:${PORT:-5000}"]
+# Start the Flask app using Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
