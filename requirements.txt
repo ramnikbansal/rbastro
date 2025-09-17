@@ -1,0 +1,5 @@
+streamlit
+swisseph
+pandas
+flask
+gunicorn
