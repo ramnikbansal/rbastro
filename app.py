@@ -4,6 +4,11 @@ from birthchart_module import generate_csv_from_params
 
 app = Flask(__name__)
 
+# Add this new root route
+@app.route("/")
+def index():
+    return "RB Astro App is running! Use /download with query parameters."
+
 @app.route("/download", methods=["GET"])
 def download_csv():
     try:
