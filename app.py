@@ -7,6 +7,11 @@ app = Flask(__name__)
 def home():
     return "RB Astro App is running! Use /download with query parameters."
 
+@app.route("/health", methods=["GET"])
+def health():
+    """Health check endpoint for uptime monitoring"""
+    return {"status": "ok"}, 200
+
 @app.route("/download", methods=["GET"])
 def download_csv():
     try:
