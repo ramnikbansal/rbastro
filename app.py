@@ -34,6 +34,7 @@ def download_csv():
         }
 
         # Generate CSV from your custom module
+        #MAIN CODE CALLED FROM THE LINE BELOW! YAY:):) --->
         csv_bytes = generate_csv_from_params(params)
 
         # Send CSV as downloadable file
