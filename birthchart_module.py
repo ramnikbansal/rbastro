@@ -81,10 +81,22 @@ def generate_csv_from_params(params: dict) -> bytes:
     ascendant = ascmc[0]
 
     # Planets
+   # planets = {
+   #     'Sun': swe.SUN, 'Moon': swe.MOON, 'Mercury': swe.MERCURY,
+   #     'Venus': swe.VENUS, 'Mars': swe.MARS, 'Jupiter': swe.JUPITER,
+   #     'Saturn': swe.SATURN, 'Rahu': swe.TRUE_NODE, 'Ketu': swe.TRUE_NODE
+   # }
+
     planets = {
-        'Sun': swe.SUN, 'Moon': swe.MOON, 'Mercury': swe.MERCURY,
-        'Venus': swe.VENUS, 'Mars': swe.MARS, 'Jupiter': swe.JUPITER,
-        'Saturn': swe.SATURN, 'Rahu': swe.TRUE_NODE, 'Ketu': swe.TRUE_NODE
+    'Sun': swe.SUN,
+    'Moon': swe.MOON,
+    'Mars': swe.MARS,
+    'Mercury': swe.MERCURY,
+    'Jupiter': swe.JUPITER,
+    'Venus': swe.VENUS,
+    'Saturn': swe.SATURN,
+    'Rahu': swe.TRUE_NODE,
+    'Ketu': swe.TRUE_NODE
     }
 
     planet_positions = {}
