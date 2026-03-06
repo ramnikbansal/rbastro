@@ -24,20 +24,39 @@ def nakshatra_pada(lon):
 
 # >>> CHANGE: Added helper to create rows for any celestial body
 # This avoids repeating the same logic for Ascendant, planets, etc.
-def add_body_row(rows, name, lon, retro=""):
+def add_body_row(rows, name, lon, cusps, retro=""):
+    
     rasi, _ = deg_to_rasi(lon)
     nak, pada = nakshatra_pada(lon)
 
+    house = get_house_number(lon, cusps)
+    
     rows.append([
         name,
         f"{lon:.5f}",
         RASI_NAMES[rasi],
         NAKSHATRA_NAMES[nak],
         pada,
-        retro
+        retro,
+        house
     ])
 
+# >>> NEW HELPER: determine house number
+def get_house_number(lon, cusps):
 
+    for i in range(12):
+
+        start = cusps[i]
+        end = cusps[(i + 1) % 12]
+
+        if start < end:
+            if start <= lon < end:
+                return i + 1
+        else:
+            if lon >= start or lon < end:
+                return i + 1
+
+    return None
 # -----------------------------
 # RASI & NAKSHATRA NAMES
 # -----------------------------
@@ -129,17 +148,17 @@ def generate_csv_from_params(params: dict) -> bytes:
         planet_positions[pname] = (lon, retro)
 
     # Prepare CSV
-    headers = ["Planet", "Degree", "Rasi", "Nakshatra", "Pada", "Retro"]
+    headers = ["Planet", "Degree", "Rasi", "Nakshatra", "Pada", "Retro", "House"]
     
      # >>> CHANGE: Create list to store rows
     rows = []
 
     # >>> CHANGE: Add Ascendant row
-    add_body_row(rows, "Ascendant", ascendant, "")
+    add_body_row(rows, "Ascendant", ascendant, cusps, "")
 
     # >>> CHANGE: Add planets as rows
     for pname, (lon, retro) in planet_positions.items():
-        add_body_row(rows, pname, lon, retro)
+        add_body_row(rows, pname, lon, cusps, retro)
 
     # -----------------------------
     # WRITE CSV
