@@ -24,7 +24,7 @@ def nakshatra_pada(lon):
 
 # >>> CHANGE: Added helper to create rows for any celestial body
 # This avoids repeating the same logic for Ascendant, planets, etc.
-def add_body_row(rows, name, lon):
+def add_body_row(rows, name, lon, retro=""):
     rasi, _ = deg_to_rasi(lon)
     nak, pada = nakshatra_pada(lon)
 
@@ -33,7 +33,8 @@ def add_body_row(rows, name, lon):
         f"{lon:.5f}",
         RASI_NAMES[rasi],
         NAKSHATRA_NAMES[nak],
-        pada
+        pada,
+        retro
     ])
 
 
@@ -95,7 +96,7 @@ def generate_csv_from_params(params: dict) -> bytes:
     cusps, ascmc = swe.houses_ex(jd_ut, latitude, longitude, b'S', flags)
     ascendant = ascmc[0]
 
-    asc_nak, asc_pada = nakshatra_pada(ascendant)
+    #asc_nak, asc_pada = nakshatra_pada(ascendant)
 
     # Planets
    # planets = {
@@ -128,17 +129,17 @@ def generate_csv_from_params(params: dict) -> bytes:
         planet_positions[pname] = (lon, retro)
 
     # Prepare CSV
-    headers = ["Planet", "Degree", "Rasi", "Nakshatra", "Pada"]
+    headers = ["Planet", "Degree", "Rasi", "Nakshatra", "Pada", "Retro"]
     
      # >>> CHANGE: Create list to store rows
     rows = []
 
     # >>> CHANGE: Add Ascendant row
-    add_body_row(rows, "Ascendant", ascendant)
+    add_body_row(rows, "Ascendant", ascendant, "")
 
     # >>> CHANGE: Add planets as rows
     for pname, (lon, retro) in planet_positions.items():
-        add_body_row(rows, pname, lon)
+        add_body_row(rows, pname, lon, retro)
 
     # -----------------------------
     # WRITE CSV
@@ -162,5 +163,16 @@ def generate_csv_from_params(params: dict) -> bytes:
     # >>> CHANGE: Remaining rows are Ascendant + planets
     for r in rows:
         writer.writerow(r)
+    # >>> ADD HOUSE LABEL ROW
+    writer.writerow([
+        "House1","House2","House3","House4","House5","House6",
+        "House7","House8","House9","House10","House11","House12"
+    ])
+
+    # >>> ADD HOUSE VALUES ROW
+    writer.writerow([f"{c:.5f}" for c in cusps])
+
+
+
 
     return output.getvalue().encode("utf-8")
