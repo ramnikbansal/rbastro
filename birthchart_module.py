@@ -22,6 +22,21 @@ def nakshatra_pada(lon):
     pada = int((lon % 13.3333333333) / 3.3333333333) + 1
     return nak, pada
 
+# >>> CHANGE: Added helper to create rows for any celestial body
+# This avoids repeating the same logic for Ascendant, planets, etc.
+def add_body_row(rows, name, lon):
+    rasi, _ = deg_to_rasi(lon)
+    nak, pada = nakshatra_pada(lon)
+
+    rows.append([
+        name,
+        f"{lon:.5f}",
+        RASI_NAMES[rasi],
+        NAKSHATRA_NAMES[nak],
+        pada
+    ])
+
+
 # -----------------------------
 # RASI & NAKSHATRA NAMES
 # -----------------------------
@@ -113,46 +128,39 @@ def generate_csv_from_params(params: dict) -> bytes:
         planet_positions[pname] = (lon, retro)
 
     # Prepare CSV
-    # headers = ["Name", "Birth_UTC", "Julian_Day", "Ascendant_deg", "Ascendant_Rasi"]
-    headers = [
-    "Name",
-    "Birth_UTC",
-    "Julian_Day",
-    "Ascendant_deg",
-    "Ascendant_Rasi",
-    "Ascendant_Nakshatra",
-    "Ascendant_Pada"
-    ]
-
+    headers = ["Planet", "Degree", "Rasi", "Nakshatra", "Pada"]
     
-    # values  = [name, birth_utc.strftime("%Y-%m-%d %H:%M:%S"), f"{jd_ut:.5f}", f"{ascendant:.5f}", RASI_NAMES[deg_to_rasi(ascendant)[0]]]
+     # >>> CHANGE: Create list to store rows
+    rows = []
 
-    values  = [
-    name,
-    birth_utc.strftime("%Y-%m-%d %H:%M:%S"),
-    f"{jd_ut:.5f}",
-    f"{ascendant:.5f}",
-    RASI_NAMES[deg_to_rasi(ascendant)[0]],
-    NAKSHATRA_NAMES[asc_nak],
-    str(asc_pada)
-    ]
-    # Add planets
+    # >>> CHANGE: Add Ascendant row
+    add_body_row(rows, "Ascendant", ascendant)
+
+    # >>> CHANGE: Add planets as rows
     for pname, (lon, retro) in planet_positions.items():
-        d, m, s = deg_to_dms(lon % 30)
-        rasi, deg_in_rasi = deg_to_rasi(lon)
-        nak, pada = nakshatra_pada(lon)
-        headers += [f"{pname}_Lon", f"{pname}_Rasi", f"{pname}_Nakshatra", f"{pname}_Pada", f"{pname}_Retro"]
-        values  += [f"{lon:.5f}", RASI_NAMES[rasi], NAKSHATRA_NAMES[nak], str(pada), retro]
+        add_body_row(rows, pname, lon)
 
-    # Houses
-    for i, cusp in enumerate(cusps, start=1):
-        headers.append(f"House{i}")
-        values.append(f"{cusp:.5f}")
+    # -----------------------------
+    # WRITE CSV
+    # -----------------------------
 
-    # In-memory CSV
     output = io.StringIO()
     writer = csv.writer(output)
+
+    # >>> CHANGE: First row contains metadata
+    writer.writerow([
+        name,
+        "Birth_UTC",
+        birth_utc.strftime("%Y-%m-%d %H:%M:%S"),
+        "Julian_Day",
+        f"{jd_ut:.5f}"
+    ])
+
+    # >>> CHANGE: Second row is table header
     writer.writerow(headers)
-    writer.writerow(values)
+
+    # >>> CHANGE: Remaining rows are Ascendant + planets
+    for r in rows:
+        writer.writerow(r)
 
     return output.getvalue().encode("utf-8")
