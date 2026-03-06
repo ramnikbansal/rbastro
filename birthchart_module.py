@@ -150,6 +150,7 @@ def generate_csv_from_params(params: dict) -> bytes:
 
     # >>> CHANGE: First row contains metadata
     writer.writerow([
+        "Native_Name",
         name,
         "Birth_UTC",
         birth_utc.strftime("%Y-%m-%d %H:%M:%S"),
@@ -163,15 +164,23 @@ def generate_csv_from_params(params: dict) -> bytes:
     # >>> CHANGE: Remaining rows are Ascendant + planets
     for r in rows:
         writer.writerow(r)
-    # >>> ADD HOUSE LABEL ROW
+
+    # >>> HOUSE LABELS 1–6
     writer.writerow([
-        "House1","House2","House3","House4","House5","House6",
+        "House1","House2","House3","House4","House5","House6"
+    ])
+    
+    # >>> HOUSE VALUES 1–6
+    writer.writerow([f"{c:.5f}" for c in cusps[:6]])
+    
+    # >>> HOUSE LABELS 7–12
+    writer.writerow([
         "House7","House8","House9","House10","House11","House12"
     ])
-
-    # >>> ADD HOUSE VALUES ROW
-    writer.writerow([f"{c:.5f}" for c in cusps])
-
+    
+    # >>> HOUSE VALUES 7–12
+    writer.writerow([f"{c:.5f}" for c in cusps[6:12]])
+    
 
 
 
