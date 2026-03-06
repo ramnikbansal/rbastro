@@ -80,6 +80,8 @@ def generate_csv_from_params(params: dict) -> bytes:
     cusps, ascmc = swe.houses_ex(jd_ut, latitude, longitude, b'S', flags)
     ascendant = ascmc[0]
 
+    asc_nak, asc_pada = nakshatra_pada(ascendant)
+
     # Planets
    # planets = {
    #     'Sun': swe.SUN, 'Moon': swe.MOON, 'Mercury': swe.MERCURY,
@@ -111,9 +113,29 @@ def generate_csv_from_params(params: dict) -> bytes:
         planet_positions[pname] = (lon, retro)
 
     # Prepare CSV
-    headers = ["Name", "Birth_UTC", "Julian_Day", "Ascendant_deg", "Ascendant_Rasi"]
-    values  = [name, birth_utc.strftime("%Y-%m-%d %H:%M:%S"), f"{jd_ut:.5f}", f"{ascendant:.5f}", RASI_NAMES[deg_to_rasi(ascendant)[0]]]
+    # headers = ["Name", "Birth_UTC", "Julian_Day", "Ascendant_deg", "Ascendant_Rasi"]
+    headers = [
+    "Name",
+    "Birth_UTC",
+    "Julian_Day",
+    "Ascendant_deg",
+    "Ascendant_Rasi",
+    "Ascendant_Nakshatra",
+    "Ascendant_Pada"
+    ]
 
+    
+    # values  = [name, birth_utc.strftime("%Y-%m-%d %H:%M:%S"), f"{jd_ut:.5f}", f"{ascendant:.5f}", RASI_NAMES[deg_to_rasi(ascendant)[0]]]
+
+    values  = [
+    name,
+    birth_utc.strftime("%Y-%m-%d %H:%M:%S"),
+    f"{jd_ut:.5f}",
+    f"{ascendant:.5f}",
+    RASI_NAMES[deg_to_rasi(ascendant)[0]],
+    NAKSHATRA_NAMES[asc_nak],
+    str(asc_pada)
+    ]
     # Add planets
     for pname, (lon, retro) in planet_positions.items():
         d, m, s = deg_to_dms(lon % 30)
