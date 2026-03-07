@@ -57,6 +57,37 @@ def get_house_number(lon, cusps):
                 return i + 1
 
     return None
+
+# >>> NEW HELPER: calculate Mandi longitude
+def calculate_mandi(jd_ut, latitude, longitude):
+
+    # sunrise and sunset
+    rsmi = swe.rise_trans(jd_ut, swe.SUN, swe.CALC_RISE, (longitude, latitude, 0))
+    sunset = swe.rise_trans(jd_ut, swe.SUN, swe.CALC_SET, (longitude, latitude, 0))
+
+    sunrise_jd = rsmi[1][0]
+    sunset_jd = sunset[1][0]
+
+    day_length = sunset_jd - sunrise_jd
+
+    # weekday (0=Monday)
+    weekday = int((jd_ut + 1.5) % 7)
+
+    # Saturn's portion index for weekdays
+    sat_portions = [6,5,4,3,2,1,0]  
+
+    portion = sat_portions[weekday]
+
+    mandi_jd = sunrise_jd + day_length * portion / 8
+
+    # calculate ascendant at mandi time
+    cusps_m, ascmc_m = swe.houses_ex(mandi_jd, latitude, longitude, b'S')
+
+    mandi_lon = ascmc_m[0]
+
+    return mandi_lon
+
+
 # -----------------------------
 # RASI & NAKSHATRA NAMES
 # -----------------------------
@@ -115,6 +146,9 @@ def generate_csv_from_params(params: dict) -> bytes:
     cusps, ascmc = swe.houses_ex(jd_ut, latitude, longitude, b'S', flags)
     ascendant = ascmc[0]
 
+    # >>> NEW: Calculate Mandi
+    mandi_lon = calculate_mandi(jd_ut, latitude, longitude)
+    
     #asc_nak, asc_pada = nakshatra_pada(ascendant)
 
     # Planets
@@ -155,6 +189,8 @@ def generate_csv_from_params(params: dict) -> bytes:
 
     # >>> CHANGE: Add Ascendant row
     add_body_row(rows, "Ascendant", ascendant, cusps, "")
+    # >>> NEW: Add Mandi row
+    add_body_row(rows, "Mandi", mandi_lon, cusps, "")
 
     # >>> CHANGE: Add planets as rows
     for pname, (lon, retro) in planet_positions.items():
