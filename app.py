@@ -20,6 +20,10 @@ def download_csv():
         longitude = request.args.get("long")
         latitude = request.args.get("lat")
 
+        # >>> ADDED
+        step = request.args.get("step", 0)
+        adjcount = request.args.get("adjcount", 0)
+
         # Check required params
         if not all([utc_offset, longitude, latitude]):
             return {"error": "Missing one of: utcoffset, long, lat"}, 400
@@ -28,16 +32,20 @@ def download_csv():
             "name": request.args.get("name", "Unknown"),
             "dob": request.args.get("dob"),
             "tob": request.args.get("tob"),
-            "utc_offset": float(utc_offset),
-            "longitude": float(longitude),
-            "latitude": float(latitude),
+
+            # keep float conversions (correct)
+            "utcoffset": float(utc_offset),
+            "long": float(longitude),
+            "lat": float(latitude),
+
+            # >>> ADDED
+            "step": float(step),
+            "adjcount": int(adjcount),
         }
 
-        # Generate CSV from your custom module
-        #MAIN CODE CALLED FROM THE LINE BELOW! YAY:):) --->
+        # MAIN CODE CALL
         csv_bytes = generate_csv_from_params(params)
 
-        # Send CSV as downloadable file
         return Response(
             csv_bytes,
             mimetype="text/csv",

@@ -1,0 +1,8 @@
+### Chandigarh Test
+GET http://127.0.0.1:5000/download?name=Ramnik+Bansal&dob=19740127&tob=024500&utcoffset=5.5&long=76.7794&lat=30.7333
+
+### Delhi Test
+GET http://127.0.0.1:5000/download?name=Test&dob=19800101&tob=120000&utcoffset=5.5&long=77.1025&lat=28.7041
+
+### new test
+GET http://192.168.1.2:5000/download?name=Ramnik&dob=19740127&tob=024500&utcoffset=5.5&long=76.78418&lat=30.73099&step=-600&adjcount=3
