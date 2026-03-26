@@ -173,7 +173,7 @@ def generate_csv_from_params(params: dict) -> bytes:
             house = get_house_number(lon, cusps)
 
             body_data[body] = {
-                "deg": f"{lon:.5f}",
+                "deg": f"{lon:.9f}",
                 "rasi": RASI_NAMES[rasi],
                 "nak": NAKSHATRA_NAMES[nak],
                 "pada": pada,
@@ -226,7 +226,7 @@ def generate_csv_from_params(params: dict) -> bytes:
         for i, c in enumerate(cusps, start = 1):
 
             headers_row.append(f"House{i}")
-            values_row.append(f"{c:.5f}")
+            values_row.append(f"{c:.9f}")
 
 
         for field in FIELDS:
